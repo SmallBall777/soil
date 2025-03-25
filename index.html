@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <title>土壌改良計算ツール</title>
+ <style>
+ body {
+ font-family: Arial, sans-serif;
+ margin: 20px;
+ }
+ h1, h2, h3, h4 {
+ color: #333;
+ }
+ input, select {
+ margin: 5px 0;
+ padding: 5px;
+ width: 200px;
+ pointer-events: auto;
+ user-select: auto;
+ }
+ button {
+ padding: 10px 20px;
+ background-color: #4CAF50;
+ color: white;
+ border: none;
+ cursor: pointer;
+ pointer-events: auto;
+ margin: 5px 0;
+ }
+ button:hover {
+ background-color: #45a049;
+ }
+ #result {
+ margin-top: 20px;
+ padding: 10px;
+ border: 1px solid #ccc;
+ background-color: #f9f9f9;
+ }
+ #custom_materials_container div {
+ border: 1px solid #ccc;
+ padding: 10px;
+ margin: 10px 0;
+ background-color: #f0f0f0;
+ }
+ .warning {
+ color: #d32f2f;
+ font-weight: bold;
+ margin: 5px 0;
+ }
+ .negative {
+ color: #d32f2f; /* 赤字 */
+ font-weight: bold;
+ }
+ </style>
+</head>
+<body>
+ <h1>土壌改良計算ツール</h1>
+
+ <h2>土壌分析値</h2>
+ <input type="number" id="cec" placeholder="CEC (me/100g)"><br>
+ <input type="number" id="ca" placeholder="Ca (mg/100g)"><br>
+ <input type="number" id="mg" placeholder="Mg (mg/100g)"><br>
+ <input type="number" id="k" placeholder="K (mg/100g)"><br>
+
+ <h2>改良条件</h2>
+ <select id="method" onchange="toggleInputs()">
+ <option value="1">方法1: 個別に目標飽和度を入力</option>
+ <option value="2">方法2: 全体の塩基飽和度と対比を入力</option>
+ </select><br>
+
+ <div id="method1_inputs">
+ <input type="number" id="target_ca" placeholder="目標Ca飽和度 (%)"><br>
+ <input type="number" id="target_mg" placeholder="目標Mg飽和度 (%)"><br>
+ <input type="number" id="target_k" placeholder="目標K飽和度 (%)"><br>
+ </div>
+
+ <div id="method2_inputs" style="display: none;">
+ <input type="number" id="total_saturation" placeholder="全体の塩基飽和度 (%)"><br>
+ <input type="number" id="ratio_ca" placeholder="Ca対比 (例: 9)"><br>
+ <input type="number" id="ratio_mg" placeholder="Mg対比 (例: 3)"><br>
+ <p>K対比は1に固定されます</p>
+ </div>
+
+ <input type="number" id="bulk_density" placeholder="仮比重"><br>
+ <input type="number" id="depth" placeholder="改良深度 (cm)"><br>
+
+ <h3>改良材の選択（複数選択可）</h3>
+ <p class="warning">⚠ 成分が過不足を超える改良材は調整されます（超過分は反映されません）。</p>
+ <label><input type="checkbox" id="use_kuto_tankar" onchange="updateMaterialInputs()"> 苦土タンカル</label><br>
+ <label><input type="checkbox" id="use_magnesium_hydroxide" onchange="updateMaterialInputs()"> 水酸化マグネシウム</label><br>
+ <button onclick="addCustomMaterial()">カスタム改良材を追加</button><br>
+
+ <div id="material_inputs">
+ <div id="kuto_tankar_inputs" style="display: none;">
+ <input type="number" id="kuto_tankar_alkali" placeholder="苦土タンカル アルカリ分 (%)"><br>
+ <input type="number" id="kuto_tankar_mg" placeholder="苦土タンカル 苦土 (%)"><br>
+ <input type="number" id="kuto_tankar_amount" placeholder="投入量 (kg/10a) ※未入力で自動計算"><br>
+ </div>
+ <div id="magnesium_hydroxide_inputs" style="display: none;">
+ <input type="number" id="magnesium_hydroxide_mg" placeholder="水酸化マグネシウム 苦土 (%)"><br>
+ <input type="number" id="magnesium_hydroxide_amount" placeholder="投入量 (kg/10a) ※未入力で自動計算"><br>
+ </div>
+ <div id="custom_materials_container"></div>
+ </div>
+
+ <button onclick="calculate()">計算する</button>
+
+ <div id="result"></div>
+
+ <script src="script.js"></script>
+</body>
+</html>
